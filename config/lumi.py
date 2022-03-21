@@ -17,7 +17,7 @@ site_configuration = {
             'descr': 'LUMI Cray EX Supercomputer',
             'hostnames': ['ln\d+-nmn', 'uan\d+-nmn.local', '\S+'],
             'modules_system': 'lmod',
-            'resourcesdir': '/users/$USER/reframe_resources',
+            'resourcesdir': '/projappl/project_462000008/reframe_resources',
             'partitions': [
                 {
                     'name': 'login',
@@ -33,7 +33,8 @@ site_configuration = {
                     ],
                     'descr': 'Login nodes',
                     'max_jobs': 4,
-                    'launcher': 'local'
+                    'launcher': 'local',
+                    'modules': ['LUMI', 'partition/L'],
                 },
                 {
                     'name': 'small',
@@ -101,6 +102,36 @@ site_configuration = {
                             'options': ['--mem={mem_per_node}']
                         },
                     ],
+                    'launcher': 'srun'
+                },
+                {
+                    'name': 'debug',
+                    'descr': 'Multicore nodes (AMD EPYC 7763, 256GB/cn)',
+                    'processor': {
+                        'num_cpus' : 256,
+                        'num_cpus_per_core': 2,
+                        'num_cpus_per_socket': 64,
+                        'num_sockets': 2
+                    },
+                    'scheduler': 'slurm',
+                    'container_platforms': [
+                        {
+                            'type': 'Singularity',
+                            'modules': []
+                        }
+                    ],
+                    'environs': [
+                        'builtin',
+                        'PrgEnv-cray',
+                        'PrgEnv-gnu',
+                        'cpeAOCC',
+                        'cpeCray',
+                        'cpeGNU',
+                    ],
+                    'max_jobs': 1,
+                    'modules': ['LUMI'],
+                    'access': ['--partition=debug',
+                               '--account=%s' % project],
                     'launcher': 'srun'
                 },
             ]
