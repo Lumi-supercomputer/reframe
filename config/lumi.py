@@ -24,11 +24,11 @@ site_configuration = {
                     'time_limit': '10m',
                     'environs': [
                         'builtin',
- #                       'PrgEnv-aocc',
- #                       'PrgEnv-cray',
+                        'PrgEnv-aocc',
+                        'PrgEnv-cray',
                         'PrgEnv-gnu',
  #                       'PrgEnv-intel',
- #                       'cpeAMD',
+                        'cpeAMD',
                         'cpeCray',
                         'cpeGNU',
 #                        'cpeIntel'
@@ -50,11 +50,11 @@ site_configuration = {
                     ],
                     'environs': [
                         'builtin',
-#                        'PrgEnv-aocc',
-#                        'PrgEnv-cray',
+                        'PrgEnv-aocc',
+                        'PrgEnv-cray',
                         'PrgEnv-gnu',
 #                        'PrgEnv-intel',
-#                        'cpeAMD',
+                        'cpeAMD',
                         'cpeCray',
                         'cpeGNU',
 #                        'cpeIntel'
@@ -87,11 +87,11 @@ site_configuration = {
                     ],
                     'environs': [
                         'builtin',
- #                       'PrgEnv-aocc',
- #                       'PrgEnv-cray',
- #                       'PrgEnv-gnu',
+                        'PrgEnv-aocc',
+                        'PrgEnv-cray',
+                        'PrgEnv-gnu',
  #                       'PrgEnv-intel',
- #                       'cpeAMD',
+                        'cpeAMD',
                         'cpeCray',
                         'cpeGNU',
  #                       'cpeIntel'
@@ -145,11 +145,10 @@ site_configuration = {
             'target_systems': ['lumi'],
             'modules': ['PrgEnv-gnu']
         },
-       #  {
-       #      'name': 'PrgEnv-intel',
-       #      'target_systems': ['lumi'],
-       #      'modules': ['PrgEnv-intel']
-       #  },
+         {
+             'name': 'PrgEnv-intel',
+             'modules': ['PrgEnv-intel']
+         },
         {
             'name': 'cpeAMD',
             'target_systems': ['lumi'],
@@ -167,7 +166,6 @@ site_configuration = {
         },
         {
             'name': 'cpeIntel',
-            'target_systems': ['lumi'],
             'modules': ['cpeIntel']
         },
         {
