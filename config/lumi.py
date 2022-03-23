@@ -119,7 +119,8 @@ site_configuration = {
                         'cpeGNU',
                     ],
                     'max_jobs': 100,
-                    'modules': ['LUMI', 'partition/C'],
+                    #'modules': ['LUMI', 'partition/G'],
+                    'build_locally': False
                     'access': ['--partition eap',
                                '--account=%s' % project],
                     'resources': [
@@ -240,15 +241,6 @@ site_configuration = {
                     'datefmt': '%FT%T%:z',
                     'append': True
                 },
-                {
-                    'type': 'httpjson',
-                    'url': 'http://httpjson-server:12345/rfm',
-                    'level': 'info',
-                    'extras': {
-                        'facility': 'reframe',
-                        'data-version': '1.0',
-                    }
-                }
             ]
         }
     ],
