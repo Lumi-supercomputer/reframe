@@ -8,6 +8,7 @@
 
 import reframe.utility.osext as osext
 
+project = 'project_462000008'
 
 site_configuration = {
     'systems': [
@@ -16,7 +17,7 @@ site_configuration = {
             'descr': 'LUMI Cray EX Supercomputer',
             'hostnames': ['ln\d+-nmn', 'uan\d+-nmn.local', '\S+'],
             'modules_system': 'lmod',
-#            'resourcesdir': '/users/rafaelsarmiento/reframe_resources',
+            'resourcesdir': '/projappl/%s/reframe_resources/' % project,
             'partitions': [
                 {
                     'name': 'login',
@@ -27,11 +28,9 @@ site_configuration = {
                         'PrgEnv-aocc',
                         'PrgEnv-cray',
                         'PrgEnv-gnu',
- #                       'PrgEnv-intel',
                         'cpeAMD',
                         'cpeCray',
                         'cpeGNU',
-#                        'cpeIntel'
                     ],
                     'descr': 'Login nodes',
                     'max_jobs': 4,
@@ -40,7 +39,7 @@ site_configuration = {
                 },
                 {
                     'name': 'small',
-                    'descr': 'Multicore nodes (AMD EPYC 7742, 256|512GB/cn)',
+                    'descr': 'Multicore nodes (AMD EPYC 7763, 256|512|1024GB/cn)',
                     'scheduler': 'slurm',
                     'container_platforms': [
                         {
@@ -53,21 +52,15 @@ site_configuration = {
                         'PrgEnv-aocc',
                         'PrgEnv-cray',
                         'PrgEnv-gnu',
-#                        'PrgEnv-intel',
                         'cpeAMD',
                         'cpeCray',
                         'cpeGNU',
-#                        'cpeIntel'
                     ],
                     'max_jobs': 100,
                     'modules': ['LUMI', 'partition/C'],
                     'access': ['--partition small',
-                               '--account=project_462000008'],
+                               '--account=%s' % project],
                     'resources': [
-                        {
-                            'name': 'switches',
-                            'options': ['--switches={num_switches}']
-                        },
                         {
                             'name': 'memory',
                             'options': ['--mem={mem_per_node}']
@@ -77,7 +70,7 @@ site_configuration = {
                     },
                     {
                     'name': 'standard',
-                    'descr': 'Multicore nodes (AMD EPYC 7742, 256|512GB/cn)',
+                    'descr': 'Multicore nodes (AMD EPYC 7763, 256GB/cn)',
                     'scheduler': 'slurm',
                     'container_platforms': [
                         {
@@ -90,21 +83,15 @@ site_configuration = {
                         'PrgEnv-aocc',
                         'PrgEnv-cray',
                         'PrgEnv-gnu',
- #                       'PrgEnv-intel',
                         'cpeAMD',
                         'cpeCray',
                         'cpeGNU',
- #                       'cpeIntel'
                     ],
                     'max_jobs': 100,
                     'modules': ['LUMI', 'partition/C'],
                     'access': ['--partition standard',
-                               '--account=project_462000008'],
+                               '--account=%s' % project],
                     'resources': [
-                        {
-                            'name': 'switches',
-                            'options': ['--switches={num_switches}']
-                        },
                         {
                             'name': 'memory',
                             'options': ['--mem={mem_per_node}']
@@ -165,24 +152,12 @@ site_configuration = {
             'modules': ['cpeGNU']
         },
         {
-            'name': 'cpeIntel',
-            'modules': ['cpeIntel']
-        },
-        {
             'name': 'PrgEnv-cray',
             'modules': ['PrgEnv-cray']
         },
         {
             'name': 'PrgEnv-gnu',
             'modules': ['PrgEnv-gnu']
-        },
-        {
-            'name': 'PrgEnv-intel',
-            'modules': ['PrgEnv-intel']
-        },
-        {
-            'name': 'PrgEnv-pgi',
-            'modules': ['PrgEnv-pgi']
         },
         {
             'name': 'builtin',
@@ -249,10 +224,10 @@ site_configuration = {
                 '--unload-module=reframe',
                 '--exec-policy=async',
                 '--strict',
-                '--output=$APPS/UES/$USER/regression/maintenance',
-                '--perflogdir=$APPS/UES/$USER/regression/maintenance/logs',
-                '--stage=$SCRATCH/regression/maintenance/stage',
-                '--report-file=$APPS/UES/$USER/regression/maintenance/reports/maint_report_{sessionid}.json',
+                '--output=/project/%s/$USER/regression/maintenance' % project,
+                '--perflogdir=/project/%s/$USER/regression/maintenance/logs' % project,
+                '--stage=/scratch/%s/regression/maintenance/stage' % project,
+                '--report-file=/project/%s/$USER/regression/maintenance/reports/maint_report_{sessionid}.json' % project,
                 '-Jreservation=maintenance',
                 '--save-log-files',
                 '--tag=maintenance',
@@ -265,10 +240,10 @@ site_configuration = {
                 '--unload-module=reframe',
                 '--exec-policy=async',
                 '--strict',
-                '--output=$APPS/UES/$USER/regression/production',
-                '--perflogdir=$APPS/UES/$USER/regression/production/logs',
-                '--stage=$SCRATCH/regression/production/stage',
-                '--report-file=$APPS/UES/$USER/regression/production/reports/prod_report_{sessionid}.json',
+                '--output=/project/%s/$USER/regression/production' % project,
+                '--perflogdir=/project/%s/$USER/regression/production/logs' % project,
+                '--stage=/scratch/%s/regression/production/stage' % project,
+                '--report-file=/project/%s/$USER/regression/production/reports/prod_report_{sessionid}.json' % project,
                 '--save-log-files',
                 '--tag=production',
                 '--timestamp=%F_%H-%M-%S'
