@@ -118,9 +118,8 @@ site_configuration = {
                         'cpeCray',
                         'cpeGNU',
                     ],
-                    'max_jobs': 100,
+                    'max_jobs': 10,
                     #'modules': ['LUMI', 'partition/G'],
-                    'build_locally': False
                     'access': ['--partition eap',
                                '--account=%s' % project],
                     'resources': [
@@ -129,7 +128,7 @@ site_configuration = {
                             'options': ['--mem={mem_per_node}']
                         },
                         {
-                            'name': 'gpu',
+                            'name': '_rfm_gpu',
                             'options': ['--gres=gpu:mi100:{num_gpus_per_node}']
                         },
                     ],

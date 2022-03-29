@@ -17,7 +17,7 @@ class fetch_osu_benchmarks(rfm.RunOnlyRegressionTest):
     #:
     #: :type: :class:`str`
     #: :default: ``'5.6.2'``
-    version = variable(str, value='5.6.2')
+    version = variable(str, value='5.9')
 
     descr = 'Fetch OSU benchmarks'
     local = True
