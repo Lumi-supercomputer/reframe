@@ -1,11 +1,3 @@
-# Copyright 2016-2022 Swiss National Supercomputing Centre (CSCS/ETH Zurich)
-# ReFrame Project Developers. See the top-level LICENSE file for details.
-#
-# SPDX-License-Identifier: BSD-3-Clause
-#
-# ReFrame CSCS settings
-#
-
 import reframe.utility.osext as osext
 
 project = 'project_462000008'
@@ -17,7 +9,7 @@ site_configuration = {
             'descr': 'LUMI Cray EX Supercomputer',
             'hostnames': ['ln\d+-nmn', 'uan\d+-nmn.local', '\S+'],
             'modules_system': 'lmod',
-            'resourcesdir': '/projappl/%s/reframe_resources/' % project,
+            'resourcesdir': f'/projappl/{project}/reframe_resources/',
             'partitions': [
                 {
                     'name': 'login',
@@ -59,7 +51,7 @@ site_configuration = {
                     'max_jobs': 100,
                     'modules': ['LUMI', 'partition/C'],
                     'access': ['--partition small',
-                               '--account=%s' % project],
+                               f'--account={project}'],
                     'resources': [
                         {
                             'name': 'memory',
@@ -90,7 +82,7 @@ site_configuration = {
                     'max_jobs': 100,
                     'modules': ['LUMI', 'partition/C'],
                     'access': ['--partition standard',
-                               '--account=%s' % project],
+                               f'--account={project}'],
                     'resources': [
                         {
                             'name': 'memory',
@@ -99,6 +91,42 @@ site_configuration = {
                     ],
                     'launcher': 'srun'
                 },
+                {
+                    'name': 'eap',
+                    'descr': 'Multicore nodes (AMD EPYC 7662, 256|512|1024GB/cn), GPU (AMD Instinct MI100 4/cn)',
+                    'scheduler': 'slurm',
+                    'container_platforms': [
+                        {
+                            'type': 'Singularity',
+                            'modules': []
+                        }
+                    ],
+                    'environs': [
+                        'builtin',
+                        'PrgEnv-aocc',
+                        'PrgEnv-cray',
+                        'PrgEnv-gnu',
+                        'cpeAMD',
+                        'cpeCray',
+                        'cpeGNU',
+                    ],
+                    'max_jobs': 10,
+                    #'modules': ['LUMI', 'partition/G'],
+                    'modules': ['craype-accel-amd-gfx908'],
+                    'access': ['--partition eap',
+                               f'--account={project}'],
+                    'resources': [
+                        {
+                            'name': 'memory',
+                            'options': ['--mem={mem_per_node}']
+                        },
+                        {
+                            'name': '_rfm_gpu',
+                            'options': ['--gres=gpu:mi100:{num_gpus_per_node}']
+                        },
+                    ],
+                    'launcher': 'srun'
+                    },
             ]
         },
         {
@@ -170,6 +198,13 @@ site_configuration = {
             'cc': 'gcc',
             'cxx': 'g++',
             'ftn': 'gfortran'
+        },
+        {
+            'name': 'builtin-hip',
+            'cc': 'hipcc',
+            'cxx': 'hipcc',
+            'ftn': '',
+            'target_systems': ['lumi:eap']
         }
     ],
     'logging': [
@@ -205,15 +240,6 @@ site_configuration = {
                     'datefmt': '%FT%T%:z',
                     'append': True
                 },
-                {
-                    'type': 'httpjson',
-                    'url': 'http://httpjson-server:12345/rfm',
-                    'level': 'info',
-                    'extras': {
-                        'facility': 'reframe',
-                        'data-version': '1.0',
-                    }
-                }
             ]
         }
     ],
