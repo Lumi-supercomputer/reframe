@@ -112,7 +112,7 @@ site_configuration = {
                     ],
                     'max_jobs': 10,
                     #'modules': ['LUMI', 'partition/G'],
-                    'modules': ['craype-accel-amd-gfx908'],
+                    'modules': ['craype-accel-amd-gfx908', 'cray-mpich/8.1.8'],
                     'access': ['--partition eap',
                                f'--account={project}'],
                     'resources': [
@@ -204,6 +204,9 @@ site_configuration = {
             'cc': 'hipcc',
             'cxx': 'hipcc',
             'ftn': '',
+            'cflags': ['-I/opt/cray/pe/mpich/8.1.8/ofi/crayclang/10.0/include'],
+            'ldflags': ['-L/opt/cray/pe/mpich/8.1.8/ofi/crayclang/10.0/lib', '-lmpi', '-L/opt/cray/pe/mpich/8.1.8/gtl/lib', '-lmpi_gtl_hsa'],
+            'cppflags': ['-D__HIP_PLATFORM_AMD__'],
             'target_systems': ['lumi:eap']
         }
     ],
