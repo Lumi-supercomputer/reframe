@@ -16,14 +16,16 @@ class build_osu_benchmarks_gpu(build_osu_benchmarks):
     def set_build_mode(self):
         if self.current_system.name in ['lumi']:
             self.build_locally = False
-            self.build_system.cc = 'hipcc'
-            self.build_system.cxx = 'hipcc'
-            self.build_system.cflags = ['-I/opt/cray/pe/mpich/8.1.8/ofi/crayclang/10.0/include']
-            self.build_system.ldflags = ['-L/opt/cray/pe/mpich/8.1.8/ofi/crayclang/10.0/lib', '-lmpi', '-L/opt/cray/pe/mpich/8.1.8/gtl/lib', '-lmpi_gtl_hsa']
-            self.build_system.cppflags = ['-D__HIP_PLATFORM_AMD__']
-            self.variables = {
-                    'LD_LIBRARY_PATH': '/opt/cray/pe/mpich/8.1.8/gtl/lib:/opt/rocm/lib:$LD_LIBRARY_PATH'
-            }
+            #self.build_system.cc = 'hipcc'
+            #self.build_system.cxx = 'hipcc'
+            ##self.build_system.cflags = ['-x hip']
+            #self.build_system.cflags = ['-I$MPICH_DIR/include']
+            ##self.build_system.cflags = ['-I/opt/cray/pe/mpich/8.1.8/ofi/crayclang/10.0/include']
+            #self.build_system.ldflags = ['-L$MPICH_DIR/lib', '-lmpi', '-L$CRAY_MPICH_ROOTDIR/gtl/lib/', '-lmpi_gtl_hsa']
+            #self.build_system.cppflags = ['-D__HIP_PLATFORM_AMD__']
+            ##self.variables = {
+            ##        'LD_LIBRARY_PATH': '/opt/cray/pe/mpich/8.1.8/gtl/lib:/opt/rocm/lib:$LD_LIBRARY_PATH'
+            ##}
     @run_after('setup')
     def set_modules(self):
         if self.current_system.name in ['daint', 'dom']:
@@ -40,7 +42,7 @@ class build_osu_benchmarks_gpu(build_osu_benchmarks):
         elif self.current_system.name in ['arolla', 'tsa']:
             self.modules = ['cuda/10.1.243']
         elif self.current_system.name in ['lumi']:
-            self.modules = ['cray-mpich', 'craype-accel-amd-gfx908']
+            self.modules = ['rocm']
 
 
 cpu_build_variant = build_osu_benchmarks.get_variant_nums(
@@ -57,12 +59,12 @@ class allreduce_check(osu_latency):
     ctrl_msg_size = 8
     perf_msg_size = 8
     executable = 'osu_allreduce'
-    num_tasks_per_node = 1
+    #num_tasks_per_node = 1
     num_gpus_per_node  = 1
     osu_binaries = fixture(build_osu_benchmarks, scope='environment',
                            variants=cpu_build_variant)
     strict_check = False
-    valid_systems = ['daint:gpu', 'daint:mc']
+    valid_systems = ['daint:gpu', 'daint:mc', 'lumi:small']
     valid_prog_environs = ['PrgEnv-gnu', 'PrgEnv-nvidia']
     maintainers = ['RS', 'AJ']
     tags = {'production', 'benchmark', 'craype'}
@@ -71,15 +73,18 @@ class allreduce_check(osu_latency):
             'num_switches': 1
         }
     }
+    validation = True
 
     @run_after('init')
     def add_valid_systems(self):
         if self.variant == 'small':
-            self.valid_systems += ['dom:gpu', 'dom:mc', 'lumi:small']
+            self.valid_systems += ['dom:gpu', 'dom:mc']
 
     @run_before('run')
     def set_num_tasks(self):
         self.num_tasks = 6 if self.variant == 'small' else 16
+        if self.current_system.name == 'lumi':
+            self.num_tasks = 128 if self.variant == 'small' else 512
 
     @run_before('performance')
     def set_performance_patterns(self):
@@ -129,7 +134,7 @@ class alltoall_check(osu_latency):
             'latency': (20.73, None, 2.0, 'us')
         }
     }
-    num_tasks_per_node = 1
+    #num_tasks_per_node = 1
     num_gpus_per_node  = 1
     extra_resources = {
         'switches': {
@@ -143,33 +148,11 @@ class alltoall_check(osu_latency):
     def set_num_tasks(self):
         if self.current_system.name == 'daint':
             self.num_tasks = 16
+        elif self.current_system.name == 'lumi':
+            self.num_tasks_per_node = 128
+            self.num_tasks = 512
         else:
             self.num_tasks = 6
-
-
-@rfm.simple_test
-class alltoall_flex_check(osu_latency):
-    descr = 'Flexible Alltoall OSU test'
-    executable = 'osu_alltoall'
-    ctrl_msg_size = 1048576
-    num_tasks_per_node = 1
-    num_tasks = 0
-    osu_binaries = fixture(build_osu_benchmarks, scope='environment',
-                           variants=cpu_build_variant)
-    valid_systems = ['daint:gpu', 'daint:mc', 'dom:gpu', 'dom:mc',
-                     'arolla:cn', 'arolla:pn', 'tsa:cn', 'tsa:pn',
-                     'lumi:small']
-    valid_prog_environs = ['PrgEnv-cray']
-    tags = {'diagnostic', 'ops', 'benchmark', 'craype'}
-    maintainers = ['RS', 'AJ']
-
-    @run_after('init')
-    def add_prog_environ(self):
-        if self.current_system.name in ['arolla', 'tsa']:
-            self.exclusive_access = True
-            self.valid_prog_environs = ['PrgEnv-gnu', 'PrgEnv-pgi']
-        elif self.current_system.name in ['lumi']:
-            self.valid_prog_environs = ['PrgEnv-gnu']
 
 
 class p2p_config_cscs(rfm.RegressionMixin):
@@ -181,7 +164,7 @@ class p2p_config_cscs(rfm.RegressionMixin):
         self.num_tasks_per_node = 1
         self.valid_systems = ['lumi:small', 'lumi:eap']
         if self.device:
-            self.valid_prog_environs = ['builtin']
+            self.valid_prog_environs = ['builtin-hip']
         else:
             self.valid_prog_environs = ['cpeGNU', 'cpeCray']
 
@@ -270,8 +253,9 @@ class g2g_rdma_cscs(rfm.RegressionMixin):
             self.num_gpus_per_node  = 1
             self.variables = {'MPICH_RDMA_ENABLED_CUDA': '1'}
         elif self.current_system.name in ['lumi']:
-            self.variables = {'LD_LIBRARY_PATH': '/opt/cray/pe/mpich/8.1.8/gtl/lib:/opt/rocm/lib:$LD_LIBRARY_PATH', 'MPICH_GPU_SUPPORT_ENABLED': '1'}
-            self.modules = ['cray-mpich', 'craype-accel-amd-gfx908']
+            #self.variables = {'LD_LIBRARY_PATH': '/opt/cray/pe/mpich/8.1.8/gtl/lib:/opt/rocm/lib:$LD_LIBRARY_PATH', 'MPICH_GPU_SUPPORT_ENABLED': '1'}
+            self.variables = {'MPICH_GPU_SUPPORT_ENABLED': '1'}
+            self.modules = ['rocm']
 
 
 @rfm.simple_test

@@ -113,6 +113,8 @@ class osu_benchmark_test_base(rfm.RunOnlyRegressionTest):
     #: :default: ``None``
     device = variable(str, type(None), value=None)
 
+    validation = variable(bool, value=False)
+
     osu_binaries = fixture(build_osu_benchmarks, scope='environment')
     executables = {
         'collective': ['osu_alltoall', 'osu_allreduce'],
@@ -129,10 +131,16 @@ class osu_benchmark_test_base(rfm.RunOnlyRegressionTest):
         elif self.executable in self.executables['startup']:
             benchmark_type = 'startup'
 
-        self.executable = os.path.join(
-            self.osu_binaries.stagedir, self.osu_binaries.build_prefix,
-            'mpi', benchmark_type, self.executable
-        )
+        if self.device:
+            self.executable = os.path.join(
+                self.osu_binaries.stagedir, self.osu_binaries.build_prefix,
+                'get_local_rank ') + os.path.join(self.osu_binaries.stagedir, 
+                self.osu_binaries.build_prefix, 'mpi', benchmark_type, self.executable)
+        else:
+            self.executable = os.path.join(
+                self.osu_binaries.stagedir, self.osu_binaries.build_prefix,
+                'mpi', benchmark_type, self.executable
+            )
         max_message_size = max(self.ctrl_msg_size, self.perf_msg_size)
         self.executable_opts = ['-m', f'{max_message_size}',
                                 '-x', f'{self.num_warmup_iters}',
@@ -143,9 +151,15 @@ class osu_benchmark_test_base(rfm.RunOnlyRegressionTest):
         if benchmark_type == 'pt2pt':
             self.executable_opts += ['D', 'D']
 
+        if self.validation:
+            self.executable_opts += ['-c']
+
     @sanity_function
     def validate_test(self):
-         return sn.assert_found(rf'^{self.ctrl_msg_size}', self.stdout)
+        if self.validation:
+            return sn.assert_found(rf'^{self.ctrl_msg_size}.*Pass', self.stdout)
+        else:
+            return sn.assert_found(rf'^{self.ctrl_msg_size}', self.stdout)
 
 
 class osu_bandwidth(osu_benchmark_test_base):
