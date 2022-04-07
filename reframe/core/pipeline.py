@@ -609,6 +609,25 @@ class RegressionTest(RegressionMixin, jsonext.JSONSerializable):
     #:        }
     #:    }
     #:
+    #: To better understand how to set the performance reference tuple, here
+    #: are some examples with both positive and negative reference values:
+    #:
+    #:   ============================== ============  ==========  ===========
+    #:   **Performance Tuple**          **Expected**  **Lowest**  **Highest**
+    #:   ``(100, -0.01, 0.02, 'MB/s')`` 100 MB/s      99 MB/s     102 MB/s
+    #:   ``(100, -0.01, None, 'MB/s')`` 100 MB/s      99 MB/s     inf MB/s
+    #:   ``(100, None, 0.02, 'MB/s')``  100 MB/s      -inf MB/s   102 MB/s
+    #:   ``(-100, -0.01, 0.02, 'C')``     -100 C        -101 C      -98 C
+    #:   ``(-100, -0.01, None, 'C')``     -100 C        -101 C      inf C
+    #:   ``(-100, None, 0.02, 'C')``      -100 C        -inf C      -98 C
+    #:   ============================== ============  ==========  ===========
+    #:
+    #: During the performance stage of the pipeline, the reference tuple
+    #: elements, except the unit, are passed to the
+    #: :func:`~reframe.utility.sanity.assert_reference` function along with the
+    #: obtained performance value in order to actually assess whether the test
+    #: passes the performance check or not.
+    #:
     #: :type: A scoped dictionary with system names as scopes or :class:`None`
     #: :default: ``{}``
     #:
@@ -1028,11 +1047,6 @@ class RegressionTest(RegressionMixin, jsonext.JSONSerializable):
             raise AttributeError(
                 f'required variable {name!r} has not been set'
             ) from None
-        elif name in self._rfm_fixture_space:
-            raise AttributeError(
-                f'fixture {name!r} has not yet been resolved: '
-                f'fixtures are resolved during the setup stage'
-            )
         else:
             raise AttributeError(
                 f'{type(self).__qualname__!r} object has no attribute {name!r}'
@@ -1514,9 +1528,7 @@ class RegressionTest(RegressionMixin, jsonext.JSONSerializable):
                           launcher,
                           name=name,
                           workdir=self._stagedir,
-                          max_pending_time=self.max_pending_time,
                           sched_access=self._current_partition.access,
-                          sched_exclusive_access=self.exclusive_access,
                           **job_opts)
 
     def _setup_perf_logging(self):
@@ -1768,6 +1780,8 @@ class RegressionTest(RegressionMixin, jsonext.JSONSerializable):
         self.job.time_limit = (self.time_limit or rt.runtime().get_option(
             f'systems/0/partitions/@{self.current_partition.name}/time_limit')
         )
+        self.job.max_pending_time = self.max_pending_time
+        self.job.exclusive_access = self.exclusive_access
         exec_cmd = [self.job.launcher.run_command(self.job),
                     self.executable, *self.executable_opts]
 
