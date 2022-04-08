@@ -154,15 +154,15 @@ class osu_benchmark(rfm.RunOnlyRegressionTest):
         self.executable_opts = ['-m', f'{self.message_size}',
                                 '-x', f'{self.num_warmup_iters}',
                                 '-i', f'{self.num_iters}']
+        if self.validation:
+            self.executable_opts += ['-c']
+
         if self.device_buffers != 'cpu':
             self.executable_opts += ['-d', self.device_buffers]
 
         if bench.startswith('mpi.pt2pt'):
             self.executable_opts += ['D', 'D']
             self.num_tasks = 2
-
-        if self.validation:
-            self.executable_opts += ['-c']
 
         self.perf_variables = {
             bench_metric: sn.make_performance_function(
