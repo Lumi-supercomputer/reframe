@@ -113,6 +113,14 @@ class osu_benchmark(rfm.RunOnlyRegressionTest):
     num_tasks = required
     num_tasks_per_node = 1
 
+    #: Validation
+    #:
+    #: Use builtin OSU test validation
+    #:
+    #: :type: `bool`
+    #: :default: ``False``
+    validation = variable(bool, value=False)
+
     #: Parameter indicating the available benchmark to execute.
     #:
     #: :type: 2-element tuple containing the benchmark name and whether latency
@@ -153,6 +161,9 @@ class osu_benchmark(rfm.RunOnlyRegressionTest):
             self.executable_opts += ['D', 'D']
             self.num_tasks = 2
 
+        if self.validation:
+            self.executable_opts += ['-c']
+
         self.perf_variables = {
             bench_metric: sn.make_performance_function(
                 self._extract_metric, unit
@@ -161,7 +172,10 @@ class osu_benchmark(rfm.RunOnlyRegressionTest):
 
     @sanity_function
     def validate_test(self):
-        return sn.assert_found(rf'^{self.message_size}', self.stdout)
+        if self.validation:
+            return sn.assert_found(rf'^{self.message_size}.*Pass', self.stdout)
+        else:
+            return sn.assert_found(rf'^{self.message_size}', self.stdout)
 
     @deferrable
     def _extract_metric(self):
