@@ -190,3 +190,7 @@ class osu_build_run(osu_benchmark):
         self.executable = os.path.join(self.osu_binaries.stagedir,
                                        self.osu_binaries.build_prefix,
                                        bench_path)
+        if self.device_buffers != 'cpu':
+            self.executable = os.path.join(self.osu_binaries.stagedir, 
+                                           self.osu_binaries.build_prefix,
+                                           'get_local_rank ') + self.executable
