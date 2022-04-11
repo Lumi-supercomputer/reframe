@@ -111,15 +111,13 @@ site_configuration = {
                     ],
                     'environs': [
                         'builtin',
+                        'builtin-hip',
                         'PrgEnv-aocc',
                         'PrgEnv-cray',
                         'PrgEnv-gnu',
-                        'cpeAMD',
-                        'cpeCray',
-                        'cpeGNU',
                     ],
                     'max_jobs': 10,
-                    #'modules': ['LUMI', 'partition/G'],
+                    'modules': ['LUMI/21.12', 'partition/EAP'],
                     'access': ['--partition eap',
                                '--account=%s' % project],
                     'resources': [
@@ -205,6 +203,16 @@ site_configuration = {
             'cc': 'gcc',
             'cxx': 'g++',
             'ftn': 'gfortran'
+        },
+        {
+            'name': 'builtin-hip',
+            'cc': 'hipcc',
+            'cxx': 'hipcc',
+            'ftn': '',
+            'cflags': ['-I$MPICH_DIR/include'],
+            'ldflags': ['-L$MPICH_DIR/lib', '-lmpi', '-L$CRAY_MPICH_ROOTDIR/gtl/lib/', '-lmpi_gtl_hsa'],
+            'cppflags': ['-D__HIP_PLATFORM_AMD__'],
+            'target_systems': ['lumi']
         }
     ],
     'logging': [
