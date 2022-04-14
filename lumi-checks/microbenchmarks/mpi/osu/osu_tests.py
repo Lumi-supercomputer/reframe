@@ -50,7 +50,7 @@ class lumi_osu_pt2pt_check(lumi_osu_benchmarks):
         'mpi.pt2pt.osu_latency': {
             'cpu': {
                 'lumi:small': {
-                    'latency': (7.25, None, 0.80, 'us')
+                    'latency': (1.8, None, 0.80, 'us')
                 }
             },
             'rocm': {
