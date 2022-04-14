@@ -212,6 +212,7 @@ site_configuration = {
             'cflags': ['-I$MPICH_DIR/include'],
             'ldflags': ['-L$MPICH_DIR/lib', '-lmpi', '-L$CRAY_MPICH_ROOTDIR/gtl/lib/', '-lmpi_gtl_hsa'],
             'cppflags': ['-D__HIP_PLATFORM_AMD__'],
+            'modules': ['rocm'],
             'target_systems': ['lumi']
         }
     ],
