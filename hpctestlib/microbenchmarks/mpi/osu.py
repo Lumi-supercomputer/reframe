@@ -113,6 +113,14 @@ class osu_benchmark(rfm.RunOnlyRegressionTest):
     num_tasks = required
     num_tasks_per_node = 1
 
+    #: Validation
+    #:
+    #: Use builtin OSU test validation
+    #:
+    #: :type: `bool`
+    #: :default: ``False``
+    validation = variable(bool, value=False)
+
     #: Parameter indicating the available benchmark to execute.
     #:
     #: :type: 2-element tuple containing the benchmark name and whether latency
@@ -146,6 +154,9 @@ class osu_benchmark(rfm.RunOnlyRegressionTest):
         self.executable_opts = ['-m', f'{self.message_size}',
                                 '-x', f'{self.num_warmup_iters}',
                                 '-i', f'{self.num_iters}']
+        if self.validation:
+            self.executable_opts += ['-c']
+
         if self.device_buffers != 'cpu':
             self.executable_opts += ['-d', self.device_buffers]
 
@@ -161,7 +172,10 @@ class osu_benchmark(rfm.RunOnlyRegressionTest):
 
     @sanity_function
     def validate_test(self):
-        return sn.assert_found(rf'^{self.message_size}', self.stdout)
+        if self.validation:
+            return sn.assert_found(rf'^{self.message_size}.*Pass', self.stdout)
+        else:
+            return sn.assert_found(rf'^{self.message_size}', self.stdout)
 
     @deferrable
     def _extract_metric(self):
@@ -190,3 +204,7 @@ class osu_build_run(osu_benchmark):
         self.executable = os.path.join(self.osu_binaries.stagedir,
                                        self.osu_binaries.build_prefix,
                                        bench_path)
+        if self.device_buffers != 'cpu':
+            self.executable = os.path.join(self.osu_binaries.stagedir, 
+                                           self.osu_binaries.build_prefix,
+                                           'get_local_rank ') + self.executable
