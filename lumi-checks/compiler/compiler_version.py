@@ -21,3 +21,20 @@ class CCompilerVersion(rfm.RegressionTest):
     def validate_solution(self):
         return sn.assert_gt(sn.len(sn.extractsingle(r'.*',
                             self.stdout, tag=0)), 0)
+
+@rfm.simple_test
+class FCompilerVersion(rfm.RegressionTest):
+    descr = 'Checks for Fortran compiler version executed by ftn wrapper'
+    valid_systems = ['lumi:small']
+    valid_prog_environs = ['cpeCray', 'cpeGNU']
+    build_system = 'SingleSource'
+    sourcepath = 'ftn_version.F90'
+
+    maintainers = ['mszpindler']
+    tags = {'production', 'craype'}
+
+
+    @sanity_function
+    def validate_solution(self):
+        return sn.assert_gt(sn.len(sn.extractsingle(r'.*',
+                            self.stdout, tag=0)), 0)
