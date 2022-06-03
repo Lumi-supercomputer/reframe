@@ -117,7 +117,7 @@ site_configuration = {
                         'PrgEnv-gnu',
                     ],
                     'max_jobs': 10,
-                    'modules': ['LUMI/21.12', 'partition/EAP'],
+                    'modules': ['LUMI/21.12', 'partition/EAP', 'rocm'],
                     'access': ['--partition eap',
                                '--account=%s' % project],
                     'resources': [
@@ -158,7 +158,7 @@ site_configuration = {
         {
             'name': 'PrgEnv-cray',
             'target_systems': ['lumi'],
-            'modules': ['cpeCray']
+            'modules': ['PrgEnv-cray']
         },
         {
             'name': 'PrgEnv-gnu',
@@ -212,7 +212,7 @@ site_configuration = {
             'cflags': ['-I$MPICH_DIR/include'],
             'ldflags': ['-L$MPICH_DIR/lib', '-lmpi', '-L$CRAY_MPICH_ROOTDIR/gtl/lib/', '-lmpi_gtl_hsa'],
             'cppflags': ['-D__HIP_PLATFORM_AMD__'],
-            'modules': ['rocm'],
+            #'modules': ['rocm'],
             'target_systems': ['lumi']
         }
     ],
